@@ -212,7 +212,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="numeroInscripcion">Número de Inscripción</label>
-                        <input type="text" class="form-control" id="numeroInscripcion" name="numeroInscripcion" placeholder="Ej. 12345678" required>
+                        <input type="text" class="form-control" id="numeroInscripcion" name="numeroInscripcion" pattern="[0-9]{8}"  placeholder="Ej. 12345678" maxlength="8" required>
                     </div>
                 </div>
                 <div class="modal-footer py-1">
@@ -265,7 +265,6 @@
                         </style>
                         <div class="fab-container" id="fabContainer">
                             <button class="fab-main" onclick="toggleFab()">+</button>
-                            {{-- <button class="fab-option fab-search" onclick="buscar()">🔍</button> --}}
                             <button class="fab-option fab-search" data-toggle="modal" data-target="#modalBuscarInscripcion" style="background:#bfcedd;">🔍</button>
                             <button class="fab-option fab-save saveFicha" style="background:#bfcedd;">💾</button>
                         </div>
@@ -301,10 +300,12 @@
                                                 // console.log(r)
                                                 console.table(r.data);
                                                 Swal.close();
-                                                if (r.success)
+                                                if (r.state)
                                                 {
                                                     limpiar();
-                                                    loadDatos(r);Swal.fire('Encontrado', r.message, 'success');
+                                                    loadDatos(r);
+                                                    // Swal.fire(r.message, r.message, 'success');
+                                                    msgImportant(r)
                                                 }
                                                 else
                                                 {Swal.fire('No encontrado', r.message, 'error');}
@@ -335,6 +336,7 @@ const tarifas = {
                                 test=r
                                 if(r.origen=='bd')
                                 {
+                                    $('#idCat').val(r.data.idCat)
                                     $('#nombreEnc').val(r.data.nombreEnc)
                                     $('#ficha').val(r.data.ficha)
                                     for (let i = 1; i <= 6; i++) {
@@ -363,7 +365,45 @@ const tarifas = {
                                         $('#d13').parent().parent().css('display','block')
                                     }
                                     $('.tipoCliente').html("(F.I.A: "+ r.data.t1+")");
+                                    const timestamp = new Date().getTime(); // único en cada carga
+                                    // FRONTIS
+                                    if (!isEmpty(r.data['frontis'])) {
+                                        const img = $('<img>')
+                                            .attr('src', "{{ asset('storage') }}" + '/' + r.data['frontis'] + '?v=' + timestamp)
+                                            .addClass('img-thumbnail m-2')
+                                            .css({width: '150px', height: '150px', objectFit: 'cover'});
+                                        $('#previewFrontis').html(img);
+                                    }
+
+                                    // AGUA
+                                    if (!isEmpty(r.data['agua'])) {
+                                        const img = $('<img>')
+                                            .attr('src', "{{ asset('storage') }}" + '/' + r.data['agua'] + '?v=' + timestamp)
+                                            .addClass('img-thumbnail m-2')
+                                            .css({width: '150px', height: '150px', objectFit: 'cover'});
+                                        $('#previewAgua').html(img);
+                                    }
+
+                                    // ALC
+                                    if (!isEmpty(r.data['alc'])) {
+                                        const img = $('<img>')
+                                            .attr('src', "{{ asset('storage') }}" + '/' + r.data['alc'] + '?v=' + timestamp)
+                                            .addClass('img-thumbnail m-2')
+                                            .css({width: '150px', height: '150px', objectFit: 'cover'});
+                                        $('#previewAlc').html(img);
+                                    }
+
+                                    // UBICACION
+                                    if (!isEmpty(r.data['ubicacion'])) {
+                                        const img = $('<img>')
+                                            .attr('src', "{{ asset('storage') }}" + '/' + r.data['ubicacion'] + '?v=' + timestamp)
+                                            .addClass('img-thumbnail m-2')
+                                            .css({width: '150px', height: '150px', objectFit: 'cover'});
+                                        $('#previewUbi').html(img);
+                                    }
+                                    $('#obs').val(r.data['obs'])
                                     $('.tipoFormulario').html('Actualizando')
+                                    segun = 'update';
                                 }
                                 else
                                 {
@@ -378,6 +418,7 @@ const tarifas = {
                                     $('#c1').val(r.data.Confidx.date.split(' ')[0]);
                                     $('#ci1').val(tarifas[r.data.Tarifx.match(/\d+/)[0]]);// obtiene el primer número encontrado
                                     $('.tipoFormulario').html('Nuevo')
+                                    segun = 'new';
                                 }
                             }
                             function guardar()
@@ -387,6 +428,7 @@ const tarifas = {
                         </script>
 
                         <form id="fvcatastro">
+                            <input type="hidden" id="idCat" name="idCat">
                             <div class="row">
                                 @include('form.section.p0')
                                 @include('form.section.p1')
@@ -468,23 +510,27 @@ const tarifas = {
 }
 </style>
 <script>
-    var guardarFicha;
+    var segun = 'new';
     $(document).ready( function () {
         $('.overlayAllPage').css("display","none");
         $('.overlayForm').css("display","none");
         // console.log('csacasc')
-        guardarFicha="{{ url('catastro/save') }}"
-        // console.log(guardarFicha)
-        // console.log('csacasc')
     });
     $('.saveFicha').on('click',function(){
+        if(isEmpty($('#u4').val()))
+        {msgImportantShow('Es necesario q ingrese un numero de inscripcion', 'Advertencia', 'error');return;}
+        if(segun=='new')
+            saveNuevo()
+        else
+            update()
+
+    })
+    function update()
+    {
         var formData = new FormData($("#fvcatastro")[0]);
-        // for (let [key, value] of formData.entries()) {
-        //     console.log(key, value);
-        // }
         $('.overlayAllPage').css("display","flex");
         jQuery.ajax({
-            url: guardarFicha,
+            url: "{{ url('catastro/saveChanges') }}",
             method: 'post',
             data: formData,
             dataType: 'json',
@@ -510,6 +556,8 @@ const tarifas = {
                     html: texto, // usamos `html` para permitir saltos de línea
                     icon: r.success ? "success" : "error",
                 });
+                segun = 'new';
+                $('.tipoFormulario').html('Nuevo')
                 $('.overlayAllPage').css("display","none");
             },
             error: function (xhr, status, error) {
@@ -519,7 +567,49 @@ const tarifas = {
                 $('.overlayAllPage').css("display","none");
             }
         });
-    })
+    }
+    function saveNuevo()
+    {
+        var formData = new FormData($("#fvcatastro")[0]);
+        $('.overlayAllPage').css("display","flex");
+        jQuery.ajax({
+            url: "{{ url('catastro/save') }}",
+            method: 'post',
+            data: formData,
+            dataType: 'json',
+            processData: false,
+            contentType: false,
+            headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+            success: function (r) {
+                console.log(r)
+                let texto = "La información fue registrada correctamente.";
+                // Si hay imágenes procesadas, agregamos más info
+                if ((r.imagenes_guardadas && r.imagenes_guardadas.length > 0) ||
+                    (r.imagenes_fallidas && r.imagenes_fallidas.length > 0))
+                {
+                    texto = "";
+                    if (r.imagenes_guardadas.length > 0)
+                        texto += "✅ Imágenes guardadas: <br>" + r.imagenes_guardadas.join("<br>") + "<br><br>";
+                    if (r.imagenes_fallidas.length > 0)
+                        texto += "❌ Imágenes fallidas: <br>" + r.imagenes_fallidas.join("<br>");
+                }
+                if(r.success){limpiar();}
+                Swal.fire({
+                    title: r.success ? "Éxito" : "Ocurrió un error",
+                    html: texto, // usamos `html` para permitir saltos de línea
+                    icon: r.success ? "success" : "error",
+                });
+                segun = 'new';
+                $('.overlayAllPage').css("display","none");
+            },
+            error: function (xhr, status, error) {
+                msgImportantShow('Algo salio mal, porfavor contactese con el Administrador.','-','error')
+                console.log(error)
+                $('.overlayForm').css("display","none");
+                $('.overlayAllPage').css("display","none");
+            }
+        });
+    }
     function limpiar()
     {
         $('.sel').val(0)

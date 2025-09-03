@@ -8,6 +8,7 @@ use App\Http\Controllers\LoginController;
 // Route::get('/', function () {return view('form.form');});
 Route::get('/',[CatastroController::class, 'actForm']);
 Route::post('catastro/save',[CatastroController::class, 'actSave']);
+Route::post('catastro/saveChanges',[CatastroController::class, 'actSaveChanges']);
 Route::get('catastro/buscar',[CatastroController::class, 'actBuscar']);
 
 Route::get('login',[LoginController::class, 'actLogin']);

@@ -64,6 +64,11 @@
 <style>
     .limpiar{cursor: pointer;}
 </style>
+{{-- <div class="col-lg-12 messageImg" style="display: none;">
+    <div class="alert alert-warning">
+        <p class="m-0 font-weight-bold">Nota: Al seleccionar una nueva imagen o utilizar la opción de limpiar, la imagen anterior será eliminada y solo se conservará la nueva imagen seleccionada, al momento de guardar la informacion.</p>
+    </div>
+</div> --}}
 <div class="col-lg-6">
     <div class="form-group">
         <label>Imagen de frontis: <span class="fas fa-broom text-info limpiar" onclick="limpiarFrontis()"></span></label>

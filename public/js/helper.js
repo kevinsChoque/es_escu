@@ -85,10 +85,11 @@ function msgImportant(r)
 {
     Swal.fire({
         title: r.message,
-        text: r.state?"La informacion fue registrada":'Ocurrio un error!',
+        text: r.state?"Se extrajo la informacion correctamente.":'Ocurrio un error!',
         icon: r.state? "success" : "error",
     });
 }
+
 function msgImportantShow(a,b,c)
 {
     Swal.fire({

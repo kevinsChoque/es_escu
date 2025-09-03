@@ -53,10 +53,10 @@ class CatastroController extends Controller
         try {
             $cat = TCatastro::where('u4',$r->inscripcion)->first();
             if($cat)
-                return response()->json(['success' => true, 'origen' => 'bd', 'data' => $cat]);
+                return response()->json(['state' => true, 'message' => 'El usuario ya fue registrado, estos datos son para actualizar.', 'origen' => 'bd', 'data' => $cat]);
             $inscripcion = trim($r->inscripcion);
             if (empty($inscripcion))
-                return response()->json(['success' => false,'message' => 'El número de inscripción es requerido.']);
+                return response()->json(['state' => false,'message' => 'El número de inscripción es requerido.']);
             $conSql = $this->connectionSql();
             if (!$conSql)
                 throw new \Exception('No se pudo establecer conexión con SQL Server.');
@@ -72,13 +72,73 @@ class CatastroController extends Controller
                 throw new \Exception('Error al ejecutar la consulta: ' . print_r(sqlsrv_errors(), true));
             $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
             if ($row && isset($row))
-                return response()->json(['success' => true,'data' => $row]);
-            return response()->json(['success' => false,'message' => 'No se encontraron datos para la inscripción proporcionada.']);
+                return response()->json(['state' => true,'data' => $row]);
+            return response()->json(['state' => false,'message' => 'No se encontraron datos para la inscripción proporcionada.']);
         } catch (\Exception $e) {
             Log::error('Error en actBuscar: ' . $e->getMessage());
-            return response()->json(['success' => false,'message' => 'Ocurrió un error al buscar la inscripción.','error' => $e->getMessage()]);
+            return response()->json(['state' => false,'message' => 'Ocurrió un error al buscar la inscripción.','error' => $e->getMessage()]);
         }
     }
+    public function actSaveChanges_eli(Request $r)
+    {
+        dd($r->all());
+    }
+    public function actSaveChanges(Request $r)
+    {
+        DB::beginTransaction();
+        $carpetas = [];
+        $imagenesGuardadas = [];
+        $imagenesFallidas = [];
+        $idCat = $r->idCat;
+
+        try {
+            // Actualizar los otros datos (excepto imágenes)
+            $data = $r->except(['frontis', 'agua', 'alc', 'ubicacion']);
+            DB::table('catastro')->where('idCat', $idCat)->update($data);
+
+            // Lista de campos de imágenes
+            foreach (['frontis', 'agua', 'alc', 'ubicacion'] as $campo) {
+                if ($r->hasFile($campo))
+                {
+                    // Si ya existía imagen, elimínala
+                    $registro = DB::table('catastro')->where('idCat', $idCat)->first();
+                    if ($registro && $registro->$campo) {
+                        if (Storage::disk('public')->exists($registro->$campo)) {
+                            Storage::disk('public')->delete($registro->$campo);
+                        }
+                    }
+
+                    // Guardar la nueva
+                    $archivo = $r->file($campo);
+                    $resultado = $this->guardarImagenCatastro($archivo, $campo, $idCat, $carpetas);
+
+                    if ($resultado['success']) {
+                        $imagenesGuardadas[] = $campo;
+                    } else {
+                        $imagenesFallidas[] = [
+                            'campo' => $campo,
+                            'error' => $resultado['error']
+                        ];
+                    }
+                }
+            }
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'imagenes_guardadas' => $imagenesGuardadas,
+                'imagenes_fallidas' => $imagenesFallidas
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
     public function actSave_test(Request $r)
     {
         DB::beginTransaction();
@@ -107,7 +167,7 @@ class CatastroController extends Controller
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
-
+// $resultado = $this->guardarImagenCatastro($archivo, $campo, $idCat, $carpetas=[]);
     private function guardarImagenCatastro($archivo, $nombreCampo, $idCat, &$carpetas)
     {
         try {
@@ -137,7 +197,7 @@ class CatastroController extends Controller
         $imagenesFallidas = [];
 
         try {
-            $data = $r->except(['frontis', 'agua', 'alc', 'ubicacion']);
+            $data = $r->except(['frontis', 'agua', 'alc', 'ubicacion', 'idCat']);
             $data['frontis'] = null;
             $data['agua'] = null;
             $data['alc'] = null;
@@ -152,6 +212,7 @@ class CatastroController extends Controller
             {
                 if ($r->hasFile($campo)) {
                     $archivo = $r->file($campo);
+                    // $resultado = $this->guardarImagenCatastro($archivo, $campo, $idCat, $carpetas=[]);
                     $resultado = $this->guardarImagenCatastro($archivo, $campo, $idCat, $carpetas);
 
                     if ($resultado['success']) {
@@ -180,7 +241,7 @@ class CatastroController extends Controller
             }
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => 'este: '.$e->getMessage(),
                 'imagenes_guardadas' => $imagenesGuardadas,
                 'imagenes_fallidas' => $imagenesFallidas
             ], 500);
