@@ -42,6 +42,15 @@
         </div>
     </div>
 </div>
+<style>
+    button i {
+    transition: transform 0.2s ease-in-out;
+}
+button:hover i {
+    transform: scale(1.2);
+}
+
+</style>
 @include('admin.section.editar')
 <script>
     localStorage.setItem('nba',2)
@@ -95,9 +104,23 @@ $(document).ready(function () {
             {
                 data: 'idCat',
                 render: function (data) {
+                    // <button class="btn btn-primary" onclick="edit(${data})"><i class="fa fa-edit"></i></button>
+                    // <button class="btn btn-danger btn-delete" onclick="deleteRecords(${data})"><i class="fa fa-trash"></i></button>
+                    // <button class="btn btn-info btn-delete" onclick="showFile(${data})"><i class="fa-solid fa-folder-open"></i></button>
                     return `
-                        <button class="btn btn-primary" onclick="edit(${data})"><i class="fa fa-edit"></i></button>
-                        <button class="btn btn-danger btn-delete" onclick="deleteRecords(${data})"><i class="fa fa-trash"></i></button>
+
+                        <!-- Botón Editar -->
+                        <button class="btn btn-light shadow-sm rounded-circle me-2" onclick="edit(${data})" title="Editar">
+                            <i class="fa-solid fa-pen-to-square text-primary"></i>
+                        </button>
+                        <!-- Botón Eliminar -->
+                        <button class="btn btn-light shadow-sm rounded-circle me-2" onclick="deleteRecords(${data})" title="Eliminar">
+                            <i class="fa-solid fa-trash text-danger"></i>
+                        </button>
+                        <!-- Botón Ficha Catastral -->
+                        <button class="btn btn-light shadow-sm rounded-circle" onclick="showFile(${data})" title="Ficha Catastral">
+                            <i class="fa-solid fa-folder-tree text-success"></i>
+                        </button>
                     `;
                 }
             }
@@ -108,13 +131,57 @@ $(document).ready(function () {
         pageLength: 3
     });
 });
-function deleteRecords(idAss)
+function showFile_eliminar(idCat)
 {
-    alert('eliminando')
-    return;
+    $(".containerSpinner").removeClass("d-none");
+    $(".containerSpinner").addClass("d-flex");
+    jQuery.ajax({
+        url: "{{ url('catastro/showFile') }}",
+        method: 'post',
+        data: {idCat: idCat},
+        dataType: 'json',
+        headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+        success: function (r) {
+            $(".containerSpinner").removeClass("d-flex");
+            $(".containerSpinner").addClass("d-none");
+        },
+        error: function (xhr, status, error) {
+            alert("Algo salio mal, porfavor contactese con el Administrador.");
+            $(".containerSpinner").removeClass("d-flex");
+            $(".containerSpinner").addClass("d-none");
+        }
+    });
+}
+function showFile(idCat) {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "{{ url('catastro/showFile') }}";
+    form.target = "_blank"; // 👉 abre en nueva pestaña
+
+    const inputId = document.createElement("input");
+    inputId.type = "hidden";
+    inputId.name = "idCat";
+    inputId.value = idCat;
+    form.appendChild(inputId);
+
+    const inputCsrf = document.createElement("input");
+    inputCsrf.type = "hidden";
+    inputCsrf.name = "_token";
+    inputCsrf.value = "{{ csrf_token() }}";
+    form.appendChild(inputCsrf);
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
+
+function deleteRecords(idCat)
+{
+    // alert('eliminando')
+    // return;
     event.preventDefault();
     Swal.fire({
-    title: "Esta seguro de eliminar la asignacion?",
+    title: "ESTA SEGURO DE ELIMINAR EL REGISTRO?",
     text: "Confirme la accion ¿DESEA CONTINUAR?",
     icon: "warning",
     showCancelButton: true,
@@ -127,23 +194,20 @@ function deleteRecords(idAss)
             $(".containerSpinner").removeClass("d-none");
             $(".containerSpinner").addClass("d-flex");
             jQuery.ajax({
-                url: "{{ url('deleteAssign') }}",
-                method: 'POST',
-                data: {idAss: idAss},
+                url: "{{ url('catastro/deleteReg') }}",
+                method: 'post',
+                data: {idCat: idCat},
                 dataType: 'json',
                 headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
                 success: function (r) {
                     console.log(r)
                     Swal.fire({
                         title: r.message,
-                        text: r.state?"La asignacion fue eliminada":'',
-                        icon: r.state? "success" : "error",
+                        icon: r.success ? "success" : "error",
+                        timer: 2000
                     });
-                    if(r.state)
-                    {
-                        $('#recordsAssign').html('');
-                        fillRecords()
-                    }
+                    if (r.success)
+                    {$('#tableCat').DataTable().ajax.reload(null, false);}
                     $(".containerSpinner").removeClass("d-flex");
                     $(".containerSpinner").addClass("d-none");
                 },
