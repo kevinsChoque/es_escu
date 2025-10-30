@@ -232,6 +232,27 @@
                     </div>
                     <div class="card-body">
                         <style>
+                            .fab-container2 {
+                                position: fixed;
+                                bottom: 20px;
+                                right: 20px;
+                                z-index: 999;
+                            }
+                            .fab-main2 {
+                                width: 56px;
+                                height: 56px;
+                                border-radius: 50%;
+                                /* background: linear-gradient(135deg, #1e90ff, #00c853); */
+                                background: linear-gradient(135deg, #FFA726, #FB8C00);
+
+                                color: white;
+                                border: none;
+                                box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+                                font-size: 24px;
+                                cursor: pointer;
+                                transition: transform 0.3s ease, opacity 0.3s ease;
+                            }
+                            /* --- */
                             .fab-container {
                                 position: fixed;
                                 bottom: 20px;
@@ -268,7 +289,15 @@
                             <button class="fab-option fab-search" data-toggle="modal" data-target="#modalBuscarInscripcion" style="background:#bfcedd;">🔍</button>
                             <button class="fab-option fab-save saveFicha" style="background:#bfcedd;">💾</button>
                         </div>
+                        <div class="fab-container2" id="fabContainer2">
+                            <button class="fab-main2"><i class="fas fa-clipboard-list"></i></button>
+                            {{-- <a href="{{ url('ct2/form2') }}" class="fab-main2"><i class="fas fa-clipboard-list"></i></a> --}}
+                        </div>
                         <script>
+                            $('#fabContainer2').on('click',function(){
+                                window.location.href = "{{ url('ct2/form2') }}";
+                            })
+
                             function toggleFab() {document.getElementById('fabContainer').classList.toggle('open');}
                             function buscar()
                             {
@@ -322,14 +351,14 @@
                                 }
                                 });
                             }
-var test;
-const tarifas = {
-    17: "17-DOMESTICO",
-    18: "18-SOCIAL-DOMESTICO",
-    25: "25-COMERCIAL",
-    43: "43-INDUSTRIAL",
-    64: "64-ESTATAL"
-};
+                            var test;
+                            const tarifas = {
+                                17: "17-DOMESTICO",
+                                18: "18-SOCIAL-DOMESTICO",
+                                25: "25-COMERCIAL",
+                                43: "43-INDUSTRIAL",
+                                64: "64-ESTATAL"
+                            };
 
                             function loadDatos(r)
                             {

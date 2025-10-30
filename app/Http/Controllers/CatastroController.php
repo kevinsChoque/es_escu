@@ -83,10 +83,7 @@ class CatastroController extends Controller
             return response()->json(['state' => false,'message' => 'Ocurrió un error al buscar la inscripción.','error' => $e->getMessage()]);
         }
     }
-    public function actSaveChanges_eli(Request $r)
-    {
-        dd($r->all());
-    }
+
     public function actSaveChanges(Request $r)
     {
         DB::beginTransaction();
