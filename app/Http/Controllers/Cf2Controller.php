@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use DB;
 
+use App\Models\TCatastroo;
+
 class Cf2Controller extends Controller
 {
     public function actForm2(Request $r)
@@ -198,6 +200,52 @@ class Cf2Controller extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+    public function actList(Request $request)
+    {
+        $search = $request->input('search.value');
+        $start = $request->input('start');
+        $length = $request->input('length');
+        $query = TCatastroo::query();
+        // Si hay búsqueda
+        if (!empty($search)) {
+            $query->where('ins', 'like', "%{$search}%")
+                ->orWhere('nombreEnc', 'like', "%{$search}%");
+        }
+        $total = $query->count();
+        // $registros = $query->orderBy('idCao', 'desc') // 👈 aquí
+        //     ->skip($start)
+        //     ->take($length)
+        //     ->get();
+        $registros = $query->orderBy('idCao', 'desc')
+            ->skip($start)
+            ->take($length)
+            ->get()
+            ->map(function ($item) {
+                $rutaCarpeta = $item->frontis;
+                $imagenes = [];
+
+                // ⚙️ Verificamos que exista la carpeta y tenga imágenes
+                if ($rutaCarpeta && \Storage::disk('public')->exists($rutaCarpeta)) {
+                    $archivos = \Storage::disk('public')->files($rutaCarpeta);
+                    foreach ($archivos as $archivo) {
+                        // Solo agregamos archivos que sean imágenes
+                        if (preg_match('/\.(jpg|jpeg|png|gif)$/i', $archivo)) {
+                            $imagenes[] = asset('storage/' . $archivo);
+                        }
+                    }
+                }
+
+                // Si no hay imágenes, agregamos un marcador vacío
+                $item->imagenes = count($imagenes) > 0 ? $imagenes : null;
+                return $item;
+            });
+        return response()->json([
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => $total,
+            "recordsFiltered" => $total,
+            "data" => $registros
+        ]);
     }
 
 }

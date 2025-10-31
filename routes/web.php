@@ -17,6 +17,7 @@ Route::get('ct2/form2',[Cf2Controller::class, 'actForm2']);
 Route::get('ct2/showInfo',[Cf2Controller::class, 'actShowInfo']);
 Route::post('ct2/save',[Cf2Controller::class, 'actSave']);
 Route::post('ct2/saveChanges',[Cf2Controller::class, 'actSaveChanges']);
+Route::get('ct2/list',[Cf2Controller::class, 'actList']);
 
 Route::get('login',[LoginController::class, 'actLogin']);
 Route::post('login/sigin',[LoginController::class, 'actSigin']);

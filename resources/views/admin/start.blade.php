@@ -14,7 +14,13 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-lg-12 table-responsive">
+                <div class="col-lg-6">
+                    <button class="btn btn-primary w-100 fw-bold showRecords"><i class="fa fa-list"></i> Registros de catastro</button>
+                </div>
+                <div class="col-lg-6">
+                    <button class="btn btn-info w-100 fw-bold showObs"><i class="fa fa-list-ol"></i> Registros de OBS</button>
+                </div>
+                <div class="col-lg-12 table-responsive mt-3 containerRecords">
                     <table id="tableCat" class="w-100 table table-hover table-striped table-bordered">
                         <thead>
                             <tr class="text-center">
@@ -27,9 +33,9 @@
                                 <th class="text-center" data-priority="3">Fecha de instlacion</th>
                                 <th class="text-center" data-priority="3">Tarifa</th>
                                 <th class="text-center" data-priority="3">Frontis</th>
-                                <th class="text-center" data-priority="3">Agua</th>
+                                {{-- <th class="text-center" data-priority="3">Agua</th>
                                 <th class="text-center" data-priority="3">Alcantarrillado</th>
-                                <th class="text-center" data-priority="3">Ubicacion</th>
+                                <th class="text-center" data-priority="3">Ubicacion</th> --}}
                                 <th class="text-center" data-priority="1">OPCIONES</th>
                             </tr>
                         </thead>
@@ -37,11 +43,71 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="col-lg-12 table-responsive mt-3 containerRecordsObs" style="display: none;">
+                    <table id="tableCatObs" class="w-100 table table-hover table-striped table-bordered">
+                        <thead>
+                            <tr class="text-center">
+                                <th class="text-center" data-priority="1">#</th>
+                                <th class="text-center" data-priority="1">Inscripcion</th>
+                                <th class="text-center" data-priority="2">Encuestador</th>
+                                <th class="text-center" data-priority="3">Obs</th>
+                                <th class="text-center" data-priority="3">Fecha</th>
+                                <th class="text-center" data-priority="3">Imagenes</th>
+                                <th class="text-center" data-priority="1">OPCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordsObs">
+                        </tbody>
+                    </table>
+                </div>
             </div>
-
         </div>
     </div>
 </div>
+<!-- Modal Galería -->
+<div class="modal fade" id="modalGaleria" tabindex="-1" aria-labelledby="modalGaleriaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark text-white text-center">
+      <div class="modal-body position-relative">
+        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+
+        <!-- Imagen grande -->
+        <img id="imgGrande" src="" class="img-fluid rounded" style="max-height: 70vh; object-fit: contain;">
+
+        <!-- Controles -->
+        <button id="btnPrev" class="btn btn-light position-absolute top-50 start-0 translate-middle-y">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button id="btnNext" class="btn btn-light position-absolute top-50 end-0 translate-middle-y">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal visor de imágenes -->
+<div class="modal fade" id="imgModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark text-center">
+      <div class="modal-header border-0">
+        <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <img id="modalImage" src="" class="img-fluid rounded" alt="Imagen">
+      </div>
+      <div class="modal-footer border-0 justify-content-between">
+        <button type="button" class="btn btn-light" id="prevImg">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button type="button" class="btn btn-light" id="nextImg">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <style>
     button i {
     transition: transform 0.2s ease-in-out;
@@ -77,28 +143,47 @@ $(document).ready(function () {
             { data: 'd7' },
             { data: 't1' },
             { data: 'ci1' },
+            // {
+            //     data: 'frontis',
+            //     render: function (data) {
+            //         return imgFro(data);
+            //     }
+            // },
+            // {
+            //     data: 'agua',
+            //     render: function (data) {
+            //         return imgAgu(data);
+            //     }
+            // },
+            // {
+            //     data: 'alc',
+            //     render: function (data) {
+            //         return imgAlc(data);
+            //     }
+            // },
+            // {
+            //     data: 'ubicacion',
+            //     render: function (data) {
+            //         return imgUbi(data);
+            //     }
+            // },
             {
-                data: 'frontis',
+                data: null,
                 render: function (data) {
-                    return imgFro(data);
-                }
-            },
-            {
-                data: 'agua',
-                render: function (data) {
-                    return imgAgu(data);
-                }
-            },
-            {
-                data: 'alc',
-                render: function (data) {
-                    return imgAlc(data);
-                }
-            },
-            {
-                data: 'ubicacion',
-                render: function (data) {
-                    return imgUbi(data);
+                    let imgs = [];
+
+                    if (data.frontis) imgs.push(`/storage/${data.frontis}`);
+                    if (data.agua) imgs.push(`/storage/${data.agua}`);
+                    if (data.alc) imgs.push(`/storage/${data.alc}`);
+                    if (data.ubicacion) imgs.push(`/storage/${data.ubicacion}`);
+
+                    if (imgs.length === 0)
+                        return '<span class="text-muted">Sin imágenes</span>';
+
+                    return imgs.map((img, i) =>
+                        `<img src="${img}" class="img-thumbnail me-1" width="70" height="70"
+                        style="cursor:pointer;" onclick="openImageModal(${JSON.stringify(imgs)}, ${i})">`
+                    ).join('');
                 }
             },
             {
@@ -130,6 +215,106 @@ $(document).ready(function () {
         },
         pageLength: 3
     });
+});
+$('.showRecords').on('click',function(){
+    $('.containerRecords').css('display','block')
+    $('.containerRecordsObs').css('display','none')
+})
+$('.showObs').on('click',function(){
+    $('#tableCatObs').DataTable({
+        processing: true,
+        serverSide: true,
+        destroy: true,
+        ajax: {
+            url: "{{ url('ct2/list') }}",
+            type: 'GET'
+        },
+        columns: [
+            { data: 'idCao' },
+            { data: 'ins' },
+            { data: 'nombreEnc' },
+            { data: 'obs' },
+            { data: 'fechaEnc' },
+            {
+                data: 'imagenes',
+                render: function (data, type, row) {
+                    if (!data || data.length === 0) {
+                        return `
+                            <div class="text-muted text-center">
+                                <i class="fa-solid fa-image-slash"></i><br>
+                                Sin imagen
+                            </div>
+                        `;
+                    }
+                    let html = '<div class="d-flex flex-wrap">';
+                    data.forEach((img, index) => {
+                        html += `
+                            <img src="${img}"
+                                data-index="${index}"
+                                data-id="${row.idCao}"
+                                class="img-thumb me-1 mb-1"
+                                style="width:60px; height:60px; object-fit:cover; cursor:pointer;">
+                        `;
+                    });
+                    html += '</div>';
+                    return html;
+                }
+            },
+
+            // {
+            //     data: 'imagenes',
+            //     render: function (data) {
+            //         if (!data || data.length === 0) {
+            //             return `
+            //                 <div class="text-muted text-center">
+            //                     <i class="fa-solid fa-image-slash"></i><br>
+            //                     Sin imagen
+            //                 </div>
+            //             `;
+            //         }
+
+            //         // Mostrar miniaturas
+            //         let html = '<div class="d-flex flex-wrap">';
+            //         data.forEach(img => {
+            //             html += `
+            //                 <img src="${img}"
+            //                     alt="foto"
+            //                     class="img-thumbnail me-1 mb-1"
+            //                     style="width:60px; height:60px; object-fit:cover;">
+            //             `;
+            //         });
+            //         html += '</div>';
+            //         return html;
+            //     }
+            // },
+
+            {
+                data: 'idCat',
+                render: function (data) {
+                    return `
+                        <!-- Botón Editar -->
+                        <button class="btn btn-light shadow-sm rounded-circle me-2" onclick="edit(${data})" title="Editar">
+                            <i class="fa-solid fa-pen-to-square text-primary"></i>
+                        </button>
+                        <!-- Botón Eliminar -->
+                        <button class="btn btn-light shadow-sm rounded-circle me-2" onclick="deleteRecords(${data})" title="Eliminar">
+                            <i class="fa-solid fa-trash text-danger"></i>
+                        </button>
+                        <!-- Botón Ficha Catastral -->
+                        <button class="btn btn-light shadow-sm rounded-circle" onclick="showFile(${data})" title="Ficha Catastral">
+                            <i class="fa-solid fa-folder-tree text-success"></i>
+                        </button>
+                    `;
+                }
+            }
+        ],
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json'
+        },
+        pageLength: 3
+    });
+    $('.containerRecordsObs').css('display','block')
+    $('.containerRecords').css('display','none')
 });
 function showFile_eliminar(idCat)
 {
@@ -174,7 +359,6 @@ function showFile(idCat) {
     form.submit();
     document.body.removeChild(form);
 }
-
 function deleteRecords(idCat)
 {
     // alert('eliminando')
@@ -217,20 +401,19 @@ function deleteRecords(idCat)
                     $(".containerSpinner").addClass("d-none");
                 }
             });
-
         }
         else
             $(ele).prop('checked', false);
     });
 }
-function imgFro(img)
-{return img===null?'-':'<img src="'+"{{asset('storage')}}/"+img+'" width="100">'}
-function imgAgu(img)
-{return img===null?'-':'<img src="'+"{{asset('storage')}}/"+img+'" width="100">'}
-function imgAlc(img)
-{return img===null?'-':'<img src="'+"{{asset('storage')}}/"+img+'" width="100">'}
-function imgUbi(img)
-{return img===null?'-':'<img src="'+"{{asset('storage')}}/"+img+'" width="100">'}
+// function imgFro(img)
+// {return img===null?'-':'<img src="'+"{{asset('storage')}}/"+img+'" width="100">'}
+// function imgAgu(img)
+// {return img===null?'-':'<img src="'+"{{asset('storage')}}/"+img+'" width="100">'}
+// function imgAlc(img)
+// {return img===null?'-':'<img src="'+"{{asset('storage')}}/"+img+'" width="100">'}
+// function imgUbi(img)
+// {return img===null?'-':'<img src="'+"{{asset('storage')}}/"+img+'" width="100">'}
 function fillRecords()
 {
     $(".containerSpinner").removeClass("d-none").addClass("d-flex");
@@ -285,6 +468,109 @@ function edit(id)
 {
     $('#mEditar').modal('show')
 }
+</script>
+<script>
+let imagenesActuales = [];
+let indiceActual = 0;
+
+$(document).on('click', '.img-thumb', function() {
+    const id = $(this).data('id');
+    const index = $(this).data('index');
+
+    // 🧠 Obtener los datos del registro desde la fila del DataTable
+    const table = $('#tableCatObs').DataTable();
+    const rowData = table.rows().data().toArray().find(r => r.idCao == id);
+
+    if (!rowData || !rowData.imagenes) return;
+
+    imagenesActuales = rowData.imagenes;
+    indiceActual = index;
+
+    // Mostrar imagen seleccionada
+    $('#imgGrande').attr('src', imagenesActuales[indiceActual]);
+    $('#modalGaleria').modal('show');
+});
+
+// Botones de navegación
+$('#btnPrev').on('click', function() {
+    if (imagenesActuales.length > 0) {
+        indiceActual = (indiceActual - 1 + imagenesActuales.length) % imagenesActuales.length;
+        $('#imgGrande').attr('src', imagenesActuales[indiceActual]);
+    }
+});
+
+$('#btnNext').on('click', function() {
+    if (imagenesActuales.length > 0) {
+        indiceActual = (indiceActual + 1) % imagenesActuales.length;
+        $('#imgGrande').attr('src', imagenesActuales[indiceActual]);
+    }
+});
+
+</script>
+<script>
+    let currentImages = [];
+let currentIndex = 0;
+
+function openImageModal(images, index = 0) {
+    currentImages = images;
+    currentIndex = index;
+    $('#modalImage').attr('src', images[index]);
+    $('#imgModal').modal('show');
+}
+
+// Botones de navegación
+$('#prevImg').click(function() {
+    if (currentIndex > 0) {
+        currentIndex--;
+        $('#modalImage').attr('src', currentImages[currentIndex]);
+    }
+});
+
+$('#nextImg').click(function() {
+    if (currentIndex < currentImages.length - 1) {
+        currentIndex++;
+        $('#modalImage').attr('src', currentImages[currentIndex]);
+    }
+});
+
+</script>
+<script>
+    function imgFro(data) {
+    if (data && data !== '') {
+        let url = `/storage/${data}`;
+        return `<img src="${url}" class="img-thumbnail" width="70" height="70"
+                style="cursor:pointer;" onclick="openImageModal(['${url}'],0)">`;
+    }
+    return '<span class="text-muted">Sin imagen</span>';
+}
+
+function imgAgu(data) {
+    if (data && data !== '') {
+        let url = `/storage/${data}`;
+        return `<img src="${url}" class="img-thumbnail" width="70" height="70"
+                style="cursor:pointer;" onclick="openImageModal(['${url}'],0)">`;
+    }
+    return '<span class="text-muted">Sin imagen</span>';
+}
+
+function imgAlc(data) {
+    if (data && data !== '') {
+        let url = `/storage/${data}`;
+        return `<img src="${url}" class="img-thumbnail" width="70" height="70"
+                style="cursor:pointer;" onclick="openImageModal(['${url}'],0)">`;
+    }
+    return '<span class="text-muted">Sin imagen</span>';
+}
+
+function imgUbi(data) {
+    if (data && data !== '') {
+        let url = `/storage/${data}`;
+        return `<img src="${url}" class="img-thumbnail" width="70" height="70"
+                style="cursor:pointer;" onclick="openImageModal(['${url}'],0)">`;
+    }
+    return '<span class="text-muted">Sin imagen</span>';
+}
+
 </script>
 <script src="{{asset('plugins/datatables/dataTables.js')}}"></script>
 <script src="{{asset('plugins/datatables/dataTables.responsive.js')}}"></script>
