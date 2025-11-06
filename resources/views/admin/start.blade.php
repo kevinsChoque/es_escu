@@ -66,27 +66,21 @@
 </div>
 <!-- Modal Galería -->
 <div class="modal fade" id="modalGaleria" tabindex="-1" aria-labelledby="modalGaleriaLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content bg-dark text-white text-center">
-      <div class="modal-body position-relative">
-        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-
-        <!-- Imagen grande -->
-        <img id="imgGrande" src="" class="img-fluid rounded" style="max-height: 70vh; object-fit: contain;">
-
-        <!-- Controles -->
-        <button id="btnPrev" class="btn btn-light position-absolute top-50 start-0 translate-middle-y">
-          <i class="fa-solid fa-chevron-left"></i>
-        </button>
-        <button id="btnNext" class="btn btn-light position-absolute top-50 end-0 translate-middle-y">
-          <i class="fa-solid fa-chevron-right"></i>
-        </button>
-      </div>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark text-white text-center">
+            <div class="modal-body position-relative">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <!-- Imagen grande -->
+                <img id="imgGrande" src="" class="img-fluid rounded" style="max-height: 70vh; object-fit: contain;">
+                <!-- Controles -->
+                <button id="btnPrev" class="btn btn-light position-absolute top-50 start-0 translate-middle-y"><i class="fa-solid fa-chevron-left"></i></button>
+                <button id="btnNext" class="btn btn-light position-absolute top-50 end-0 translate-middle-y"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 <!-- Modal visor de imágenes -->
-<div class="modal fade" id="imgModal" tabindex="-1" aria-hidden="true">
+{{-- <div class="modal fade" id="imgModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content bg-dark text-center">
       <div class="modal-header border-0">
@@ -105,7 +99,29 @@
       </div>
     </div>
   </div>
+</div> --}}
+<div class="modal fade" id="imgModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark text-white text-center position-relative">
+      <!-- Botón de cierre -->
+      <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+
+      <!-- Imagen principal -->
+      <div class="modal-body p-0">
+        <img id="modalImage" src="" class="img-fluid rounded" style="max-height: 70vh; object-fit: contain;">
+      </div>
+
+      <!-- Botones de navegación -->
+      <button id="prevImg" class="btn btn-light position-absolute top-50 start-0 translate-middle-y btn-nav-img">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <button id="nextImg" class="btn btn-light position-absolute top-50 end-0 translate-middle-y btn-nav-img">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
 </div>
+
 
 
 <style>
@@ -170,19 +186,20 @@ $(document).ready(function () {
             {
                 data: null,
                 render: function (data) {
+                    let base = "{{ asset('storage') }}/";
                     let imgs = [];
 
-                    if (data.frontis) imgs.push(`/storage/${data.frontis}`);
-                    if (data.agua) imgs.push(`/storage/${data.agua}`);
-                    if (data.alc) imgs.push(`/storage/${data.alc}`);
-                    if (data.ubicacion) imgs.push(`/storage/${data.ubicacion}`);
+                    if (data.frontis) imgs.push(base + data.frontis);
+                    if (data.agua) imgs.push(base + data.agua);
+                    if (data.alc) imgs.push(base + data.alc);
+                    if (data.ubicacion) imgs.push(base + data.ubicacion);
 
                     if (imgs.length === 0)
                         return '<span class="text-muted">Sin imágenes</span>';
 
                     return imgs.map((img, i) =>
                         `<img src="${img}" class="img-thumbnail me-1" width="70" height="70"
-                        style="cursor:pointer;" onclick="openImageModal(${JSON.stringify(imgs)}, ${i})">`
+                        style="cursor:pointer;" onclick='openImageModal(${JSON.stringify(imgs)}, ${i})'>`
                     ).join('');
                 }
             },
@@ -193,7 +210,6 @@ $(document).ready(function () {
                     // <button class="btn btn-danger btn-delete" onclick="deleteRecords(${data})"><i class="fa fa-trash"></i></button>
                     // <button class="btn btn-info btn-delete" onclick="showFile(${data})"><i class="fa-solid fa-folder-open"></i></button>
                     return `
-
                         <!-- Botón Editar -->
                         <button class="btn btn-light shadow-sm rounded-circle me-2" onclick="edit(${data})" title="Editar">
                             <i class="fa-solid fa-pen-to-square text-primary"></i>
@@ -512,11 +528,16 @@ $('#btnNext').on('click', function() {
 let currentIndex = 0;
 
 function openImageModal(images, index = 0) {
-    currentImages = images;
-    currentIndex = index;
+    console.log(images);
+    console.log(index);
+
+    currentImages = images;   // array de rutas
+    currentIndex = index;     // índice actual
+
     $('#modalImage').attr('src', images[index]);
     $('#imgModal').modal('show');
 }
+
 
 // Botones de navegación
 $('#prevImg').click(function() {
@@ -536,6 +557,7 @@ $('#nextImg').click(function() {
 </script>
 <script>
     function imgFro(data) {
+    // {return img===null?'-':'<img src="'+"{{asset('storage')}}/"+img+'" width="100">'}
     if (data && data !== '') {
         let url = `/storage/${data}`;
         return `<img src="${url}" class="img-thumbnail" width="70" height="70"
