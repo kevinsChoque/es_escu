@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 
 use Codedge\Fpdf\Fpdf\Fpdf;
 
+use DB;
+
 class FcController extends Controller
 {
     public function actShowFile_test(Request $r)
@@ -24,7 +26,11 @@ class FcController extends Controller
     public function actShowFile(Request $r)
     {
         // $f2 = TFormat2::find($idFo2);
-        // dd($f2->idFo2);
+        // dd($r->all());
+        $cat = DB::table('catastro')->where('idCat', $r->idCat)->first();
+
+        // dd($cat);
+
         $marco = 1;
     	$smarco = 0;
         $t = 8.1;
@@ -58,9 +64,25 @@ class FcController extends Controller
     // $pdf->Image(public_path('img/emusap_logo.png'), 30, 30, 150, 0, 'PNG');
     // $pdf->SetAlpha(1); // volvemos a normal
     // test
-$pdf->Image(public_path('img/test.jpg'), 10, 190, 60, 99);
-$pdf->Image(public_path('img/test.jpg'), 76, 190, 60, 99);
-$pdf->Image(public_path('img/test.jpg'), 142, 190, 60, 99);
+// $pdf->Image(public_path('img/test.jpg'), 10, 190, 60, 99);
+if ($cat && $cat->frontis && file_exists(public_path('storage/' . $cat->frontis))) {
+    $pdf->Image(public_path('storage/' . $cat->frontis), 10, 190, 60, 99);
+} else {
+    // Imagen por defecto si no existe
+    $pdf->Image(public_path('img/default.png'), 25, 220, 33, 33);
+}
+// $pdf->Image(public_path('img/test.jpg'), 76, 190, 60, 99);
+if ($cat && $cat->agua && file_exists(public_path('storage/' . $cat->agua))) {
+    $pdf->Image(public_path('storage/' . $cat->agua), 76, 190, 60, 99);
+} else {
+    $pdf->Image(public_path('img/default.png'), 91, 220, 33, 33);
+}
+// $pdf->Image(public_path('img/test.jpg'), 142, 190, 60, 99);
+if ($cat && $cat->alc && file_exists(public_path('storage/' . $cat->alc))) {
+    $pdf->Image(public_path('storage/' . $cat->alc), 142, 190, 60, 99);
+} else {
+    $pdf->Image(public_path('img/default.png'), 157, 220, 33, 33);
+}
 // test
 // ---
 
@@ -85,7 +107,7 @@ $pdf->Image(public_path('img/test.jpg'), 142, 190, 60, 99);
         $pdf->SetFillColor(230, 230, 230);
         $pdf->SetDrawColor(100, 100, 100);
         $pdf->SetLineWidth(.5);         // grosor de línea
-        $pdf->Rect(10, 25, 195, 5.4, 'DF');
+        $pdf->Rect(10, 25, 190, 5.4, 'DF');
         $pdf->SetLineWidth(0.2);
         $pdf->SetDrawColor(0, 0, 0);
         // $pdf->SetLineWidth(0);
@@ -101,12 +123,12 @@ $pdf->Image(public_path('img/test.jpg'), 142, 190, 60, 99);
 
 
         $pdf->SetFont('Arial', 'B', 8);
-        $pdf->Cell(30,$s,'Fecha de encuesta:',$smarco,0,'L');
-        $pdf->Cell(20,$s,'-',$smarco,0,'L');
-        $pdf->Cell(38,$s,'Nombre del encuestador:',$smarco,0,'L');
-        $pdf->Cell(45,$s,'-',$smarco,0,'L');
-        $pdf->Cell(32,$s,'Nª de ficha tecnica:',$smarco,0,'L');
-        $pdf->Cell(25,$s,'-',$smarco,1,'L');
+        $pdf->Cell(27,$s,'Fecha de encuesta:',$smarco,0,'L');
+        $pdf->Cell(29,$s,$cat->fechaEnc,$smarco,0,'L');
+        $pdf->Cell(35,$s,'Nombre del encuestador:',$smarco,0,'L');
+        $pdf->Cell(58,$s,utf8_decode($cat->nombreEnc),$smarco,0,'L');
+        $pdf->Cell(27,$s,utf8_decode('Nª de ficha tecnica:'),$smarco,0,'L');
+        $pdf->Cell(14,$s,$cat->ficha,$smarco,1,'C');
 
         $pdf->ln(1.8);
 
@@ -126,19 +148,19 @@ $pdf->Image(public_path('img/test.jpg'), 142, 190, 60, 99);
 $pdf->Cell(190,$s,'1.- DATOS DE CONEXION',$smarco,1,'L');
 
 
-        $pdf->Cell(55,$s,'-',$smarco,0,'C');
-        $pdf->Cell(85,$s,'-',$smarco,0,'C');
-        $pdf->Cell(50,$s,'-',$smarco,1,'C');
+        $pdf->Cell(55,$s,$cat->u1,$smarco,0,'C');
+        $pdf->Cell(85,$s,$cat->u2,$smarco,0,'C');
+        $pdf->Cell(50,$s,$cat->u3,$smarco,1,'C');
 
         $pdf->Cell(55,$s,'Tipo de cliente catastro',$marco,0,'C');
         $pdf->Cell(85,$s,'Situacion de la conexion',$marco,0,'C');
         $pdf->Cell(50,$s,'Condicion de la conexion',$marco,1,'C');
 
-        $pdf->Cell(55,$s,'-',$smarco,0,'C');
-        $pdf->Cell(85,$s,'-',$smarco,0,'C');
-        $pdf->Cell(50,$s,'-',$smarco,1,'C');
+        $pdf->Cell(55,$s,$cat->u4,$smarco,0,'C');
+        $pdf->Cell(85,$s,$cat->u5,$smarco,0,'C');
+        $pdf->Cell(50,$s,$cat->u6,$smarco,1,'C');
 
-        $pdf->Cell(55,$s,'Nª de inscripcion:',$marco,0,'C');
+        $pdf->Cell(55,$s,utf8_decode('Nª de inscripcion:'),$marco,0,'C');
         $pdf->Cell(85,$s,'Manzana:',$marco,0,'C');
         $pdf->Cell(50,$s,'Lote:',$marco,1,'C');
         $pdf->ln(1.8);
@@ -154,33 +176,33 @@ $pdf->Cell(190,$s,'1.- DATOS DE CONEXION',$smarco,1,'L');
         $pdf->SetDrawColor(0, 0, 0);
 $pdf->Cell(190,$s,'2.- DATOS DEL USUARIO',$smarco,1,'L');
 
-        $pdf->Cell(55,$s,'-',$smarco,0,'C');
-        $pdf->Cell(85,$s,'-',$smarco,0,'C');
-        $pdf->Cell(50,$s,'-',$smarco,1,'C');
+        $pdf->Cell(55,$s,utf8_decode($cat->d1),$smarco,0,'C');
+        $pdf->Cell(85,$s,utf8_decode($cat->d2),$smarco,0,'C');
+        $pdf->Cell(50,$s,utf8_decode($cat->d3),$smarco,1,'C');
 
         $pdf->Cell(55,$s,'Nombre o razon social:',$marco,0,'L');
         $pdf->Cell(85,$s,'Direccion (calle/jiron/av/psj):',$marco,0,'L');
-        $pdf->Cell(50,$s,'Nª/Manzana/Lote:',$marco,1,'L');
+        $pdf->Cell(50,$s,utf8_decode('Nª/Manzana/Lote:'),$marco,1,'L');
 
-        $pdf->Cell(55,$s,'-',$smarco,0,'C');
-        $pdf->Cell(85,$s,'-',$smarco,0,'C');
-        $pdf->Cell(50,$s,'-',$smarco,1,'C');
+        $pdf->Cell(55,$s,utf8_decode($cat->d4),$smarco,0,'C');
+        $pdf->Cell(85,$s,utf8_decode($cat->d5),$smarco,0,'C');
+        $pdf->Cell(50,$s,utf8_decode($cat->d6),$smarco,1,'C');
 
         $pdf->Cell(55,$s,'Urbanizacion:',$marco,0,'L');
         $pdf->Cell(85,$s,'Departamento:',$marco,0,'L');
         $pdf->Cell(50,$s,'Provincia:',$marco,1,'L');
 
-        $pdf->Cell(55,$s,'-',$smarco,0,'C');
-        $pdf->Cell(85,$s,'-',$smarco,0,'C');
-        $pdf->Cell(50,$s,'-',$smarco,1,'C');
+        $pdf->Cell(55,$s,utf8_decode($cat->d7),$smarco,0,'C');
+        $pdf->Cell(85,$s,utf8_decode($cat->d8),$smarco,0,'C');
+        $pdf->Cell(50,$s,utf8_decode($cat->d9),$smarco,1,'C');
 
         $pdf->Cell(55,$s,'Distrito:',$marco,0,'L');
         $pdf->Cell(85,$s,'Tipo de material vivienda:',$marco,0,'L');
         $pdf->Cell(50,$s,'Nª de pisos:',$marco,1,'L');
 
-        $pdf->Cell(55,$s,'-',$smarco,0,'C');
-        $pdf->Cell(85,$s,'-',$smarco,0,'C');
-        $pdf->Cell(50,$s,'-',$smarco,1,'C');
+        $pdf->Cell(55,$s,utf8_decode($cat->d10),$smarco,0,'C');
+        $pdf->Cell(85,$s,utf8_decode($cat->d11),$smarco,0,'C');
+        $pdf->Cell(50,$s,utf8_decode($cat->d12),$smarco,1,'C');
 
         $pdf->Cell(55,$s,'Tipo de construccion:',$marco,0,'L');
         $pdf->Cell(85,$s,'Tipo de servicio:',$marco,0,'L');
@@ -198,40 +220,40 @@ $pdf->Cell(190,$s,'2.- DATOS DEL USUARIO',$smarco,1,'L');
         $pdf->SetDrawColor(0, 0, 0);
 $pdf->Cell(190,$s,'3.- DATOS DE CONEXION DE AGUA POTABLE:',$smarco,1,'L');
 
-        $pdf->Cell(55,$s,'-',$smarco,0,'C');
-        $pdf->Cell(85,$s,'-',$smarco,0,'C');
-        $pdf->Cell(50,$s,'-',$smarco,1,'C');
+        $pdf->Cell(55,$s,utf8_decode($cat->t1),$smarco,0,'C');
+        $pdf->Cell(85,$s,utf8_decode($cat->t2),$smarco,0,'C');
+        $pdf->Cell(50,$s,utf8_decode($cat->t3),$smarco,1,'C');
 
         $pdf->Cell(55,$s,'Fecha de ins. de agua:',$marco,0,'L');
         $pdf->Cell(85,$s,'Diametro:',$marco,0,'L');
         $pdf->Cell(50,$s,'Material de conexion:',$marco,1,'L');
 
-        $pdf->Cell(55,$s,'-',$smarco,0,'C');
-        $pdf->Cell(85,$s,'-',$smarco,0,'C');
-        $pdf->Cell(50,$s,'-',$smarco,1,'C');
+        $pdf->Cell(55,$s,utf8_decode($cat->t4),$smarco,0,'C');
+        $pdf->Cell(85,$s,utf8_decode($cat->t5),$smarco,0,'C');
+        $pdf->Cell(50,$s,utf8_decode($cat->t6),$smarco,1,'C');
 
         $pdf->Cell(55,$s,'Profundidad(m):',$marco,0,'L');
         $pdf->Cell(85,$s,'Nª de medidor:',$marco,0,'L');
         $pdf->Cell(50,$s,'Marca del medidor:',$marco,1,'L');
 
-        $pdf->Cell(55,$s,'-',$smarco,0,'C');
-        $pdf->Cell(85,$s,'-',$smarco,0,'C');
-        $pdf->Cell(50,$s,'-',$smarco,1,'C');
+        $pdf->Cell(55,$s,utf8_decode($cat->t7),$smarco,0,'C');
+        $pdf->Cell(85,$s,utf8_decode($cat->t8),$smarco,0,'C');
+        $pdf->Cell(50,$s,utf8_decode($cat->t9),$smarco,1,'C');
 
         $pdf->Cell(55,$s,'Estado del medidor:',$marco,0,'L');
         $pdf->Cell(85,$s,'Material de tapa:',$marco,0,'L');
         $pdf->Cell(50,$s,'Estado de tapa:',$marco,1,'L');
 
-        $pdf->Cell(55,$s,'-',$smarco,0,'C');
-        $pdf->Cell(85,$s,'-',$smarco,0,'C');
-        $pdf->Cell(50,$s,'-',$smarco,1,'C');
+        $pdf->Cell(55,$s,utf8_decode($cat->t10),$smarco,0,'C');
+        $pdf->Cell(85,$s,utf8_decode($cat->t11),$smarco,0,'C');
+        $pdf->Cell(50,$s,utf8_decode($cat->t12),$smarco,1,'C');
 
         $pdf->Cell(55,$s,'Material de la caja:',$marco,0,'L');
         $pdf->Cell(85,$s,'Estado de caja:',$marco,0,'L');
         $pdf->Cell(50,$s,'Ubicacion de conexion:',$marco,1,'L');
 
         $pdf->Cell(55,$s,'Observaciones:',$marco,0,'L');
-        $pdf->Cell(135,$s,'-',$marco,1,'L');
+        $pdf->Cell(135,$s,utf8_decode($cat->t13),$marco,1,'L');
         $pdf->ln(1.8);
 // -------------------------------------------------------
 
@@ -244,29 +266,29 @@ $pdf->Cell(190,$s,'3.- DATOS DE CONEXION DE AGUA POTABLE:',$smarco,1,'L');
         $pdf->SetDrawColor(0, 0, 0);
 $pdf->Cell(190,$s,'4.- DATOS DE CONEXION DE ALCANTARILLADO:',$smarco,1,'L');
 
-        $pdf->Cell(55,$s,'-',$smarco,0,'C');
-        $pdf->Cell(85,$s,'-',$smarco,0,'C');
-        $pdf->Cell(50,$s,'-',$smarco,1,'C');
+        $pdf->Cell(55,$s,utf8_decode($cat->c1),$smarco,0,'C');
+        $pdf->Cell(85,$s,utf8_decode($cat->c2),$smarco,0,'C');
+        $pdf->Cell(50,$s,utf8_decode($cat->c3),$smarco,1,'C');
 
         $pdf->Cell(55,$s,'Fecha de ins. de desague:',$marco,0,'L');
         $pdf->Cell(85,$s,'Diametro:',$marco,0,'L');
         $pdf->Cell(50,$s,'Material de la conexion:',$marco,1,'L');
 
-        $pdf->Cell(55,$s,'-',$smarco,0,'C');
-        $pdf->Cell(85,$s,'-',$smarco,0,'C');
-        $pdf->Cell(50,$s,'-',$smarco,1,'C');
+        $pdf->Cell(55,$s,utf8_decode($cat->c4),$smarco,0,'C');
+        $pdf->Cell(85,$s,utf8_decode($cat->c5),$smarco,0,'C');
+        $pdf->Cell(50,$s,utf8_decode($cat->c6),$smarco,1,'C');
 
         $pdf->Cell(55,$s,'Material de la tapa:',$marco,0,'L');
         $pdf->Cell(85,$s,'Estado de tapa:',$marco,0,'L');
         $pdf->Cell(50,$s,'Material de caja:',$marco,1,'L');
 
-        $pdf->Cell(55,$s,'-',$smarco,0,'C');
-        $pdf->Cell(85,$s,'-',$smarco,0,'C');
-        $pdf->Cell(50,$s,'-',$smarco,1,'C');
+        $pdf->Cell(55,$s,utf8_decode($cat->c7),$smarco,0,'C');
+        $pdf->Cell(85,$s,utf8_decode($cat->c8),$smarco,0,'C');
+        $pdf->Cell(50,$s,'',$smarco,1,'C');
 
         $pdf->Cell(55,$s,'Estado de caja:',$marco,0,'L');
         $pdf->Cell(85,$s,'Ubicacion:',$marco,0,'L');
-        $pdf->Cell(50,$s,'-',$marco,1,'L');
+        $pdf->Cell(50,$s,'',$marco,1,'L');
         $pdf->ln(1.8);
 // ------------------------------------------------------------------------------
 $pdf->ln(1.8);
@@ -278,9 +300,9 @@ $pdf->ln(1.8);
         $pdf->SetDrawColor(0, 0, 0);
 $pdf->Cell(190,$s,'5.- UNIDADES DE USO:',$smarco,1,'L');
 
-        $pdf->Cell(55,$s,'-',$smarco,0,'C');
-        $pdf->Cell(85,$s,'-',$smarco,0,'C');
-        $pdf->Cell(50,$s,'-',$smarco,1,'C');
+        $pdf->Cell(55,$s,utf8_decode($cat->ci1),$smarco,0,'C');
+        $pdf->Cell(85,$s,utf8_decode($cat->ci2),$smarco,0,'C');
+        $pdf->Cell(50,$s,utf8_decode($cat->ci3),$smarco,1,'C');
 
         $pdf->Cell(55,$s,'Tarifa:',$marco,0,'L');
         $pdf->Cell(85,$s,'Nª de usos:',$marco,0,'L');
@@ -297,7 +319,7 @@ $pdf->ln(1.8);
         $pdf->SetDrawColor(0, 0, 0);
 
         $pdf->Cell(190,$s,'OBSERVACIONES:',$smarco,1,'L');
-        $pdf->Cell(190,$s+3.5,'-',$smarco,1,'L');
+        $pdf->Cell(190,$s+3.5,utf8_decode($cat->ci4),$smarco,1,'L');
 
         return response($pdf->Output('S'))
             ->header('Content-Type', 'application/pdf');

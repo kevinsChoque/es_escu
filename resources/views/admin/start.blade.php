@@ -6,8 +6,7 @@
                 <h6 class="m-0"><i class="fa fa-list"></i> Lista</h6>
             </div>
             <div class="d-none justify-content-center containerSpinner"
-                style="background: rgb(199 206 213 / 50%);height: 100%;
-        position: absolute;width: 100%;z-index: 1000000;">
+                style="background: rgb(199 206 213 / 50%);height: 100%; position: absolute;width: 100%;z-index: 1000000;">
                 <div class="spinner-border m-auto text-primary" style="width: 3rem; height: 3rem;" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
@@ -29,12 +28,13 @@
                                     <th class="text-center" data-priority="1">#</th>
                                     <th class="text-center" data-priority="1">Codigo</th>
                                     <th class="text-center" data-priority="2">Encuestador</th>
+                                    <th class="text-center" data-priority="2">Fecha de encuesta</th>
                                     <th class="text-center" data-priority="2">Ficha</th>
                                     <th class="text-center" data-priority="2">Direccion</th>
                                     <th class="text-center" data-priority="2">Provincia</th>
                                     <th class="text-center" data-priority="3">Fecha de instlacion</th>
                                     <th class="text-center" data-priority="3">Tarifa</th>
-                                    <th class="text-center" data-priority="3">Frontis</th>
+                                    <th class="text-center" data-priority="3">Frontis,agua,a.,u.</th>
                                     {{-- <th class="text-center" data-priority="3">Agua</th>
                                 <th class="text-center" data-priority="3">Alcantarrillado</th>
                                 <th class="text-center" data-priority="3">Ubicacion</th> --}}
@@ -106,13 +106,9 @@
         </div>
     </div>
     <style>
-        button i {
-            transition: transform 0.2s ease-in-out;
-        }
-
-        button:hover i {
-            transform: scale(1.2);
-        }
+        button i {transition: transform 0.2s ease-in-out;}
+        button:hover i {transform: scale(1.2);}
+        #tableCat td,#tableCat th {vertical-align: middle !important;/* text-align: center;  */}
     </style>
     @include('admin.section.editar')
     <script>
@@ -132,6 +128,7 @@
                     {data: 'idCat'},
                     {data: 'u4'},
                     {data: 'nombreEnc'},
+                    {data: 'fechaEnc'},
                     {data: 'ficha'},
                     {data: 'd2'},
                     {data: 'd7'},
@@ -150,7 +147,7 @@
                                 return '<span class="text-muted">Sin imágenes</span>';
                             return imgs.map((img, i) =>
                                 `<img src="${img}" class="img-thumbnail me-1" width="70" height="70"
-                        style="cursor:pointer;" onclick='openImageModal(${JSON.stringify(imgs)}, ${i})'>`
+                                style="cursor:pointer;" onclick='openImageModal(${JSON.stringify(imgs)}, ${i})'>`
                             ).join('');
                         }
                     },
@@ -281,41 +278,32 @@
                     url: "{{ url('ct2/list') }}",
                     type: 'GET'
                 },
-                columns: [{
-                        data: 'idCao'
-                    },
-                    {
-                        data: 'ins'
-                    },
-                    {
-                        data: 'nombreEnc'
-                    },
-                    {
-                        data: 'obs'
-                    },
-                    {
-                        data: 'fechaEnc'
-                    },
+                columns: [
+                    {data: 'idCao'},
+                    {data: 'ins'},
+                    {data: 'nombreEnc'},
+                    {data: 'obs'},
+                    {data: 'fechaEnc'},
                     {
                         data: 'imagenes',
                         render: function(data, type, row) {
                             if (!data || data.length === 0) {
                                 return `
-                            <div class="text-muted text-center">
-                                <i class="fa-solid fa-image-slash"></i><br>
-                                Sin imagen
-                            </div>
-                        `;
+                                    <div class="text-muted text-center">
+                                        <i class="fa-solid fa-image-slash"></i><br>
+                                        Sin imagen
+                                    </div>
+                                `;
                             }
                             let html = '<div class="d-flex flex-wrap">';
                             data.forEach((img, index) => {
                                 html += `
-                            <img src="${img}"
-                                data-index="${index}"
-                                data-id="${row.idCao}"
-                                class="img-thumb me-1 mb-1"
-                                style="width:60px; height:60px; object-fit:cover; cursor:pointer;">
-                        `;
+                                    <img src="${img}"
+                                        data-index="${index}"
+                                        data-id="${row.idCao}"
+                                        class="img-thumb me-1 mb-1"
+                                        style="width:60px; height:60px; object-fit:cover; cursor:pointer;">
+                                `;
                             });
                             html += '</div>';
                             return html;
@@ -325,62 +313,35 @@
                         data: 'idCat',
                         render: function(data) {
                             return `
-                        <!-- Botón Editar -->
-                        <button class="btn btn-light shadow-sm rounded-circle me-2" onclick="edit(${data})" title="Editar">
-                            <i class="fa-solid fa-pen-to-square text-primary"></i>
-                        </button>
-                        <!-- Botón Eliminar -->
-                        <button class="btn btn-light shadow-sm rounded-circle me-2" onclick="deleteRecords(${data})" title="Eliminar">
-                            <i class="fa-solid fa-trash text-danger"></i>
-                        </button>
-                        <!-- Botón Ficha Catastral -->
-                        <button class="btn btn-light shadow-sm rounded-circle" onclick="showFile(${data})" title="Ficha Catastral">
-                            <i class="fa-solid fa-folder-tree text-success"></i>
-                        </button>
-                    `;
+                                <!-- Botón Editar -->
+                                <button class="btn btn-light shadow-sm rounded-circle me-2" onclick="edit(${data})" title="Editar">
+                                    <i class="fa-solid fa-pen-to-square text-primary"></i>
+                                </button>
+                                <!-- Botón Eliminar -->
+                                <button class="btn btn-light shadow-sm rounded-circle me-2" onclick="deleteRecords(${data})" title="Eliminar">
+                                    <i class="fa-solid fa-trash text-danger"></i>
+                                </button>
+                                <!-- Botón Ficha Catastral -->
+                                <button class="btn btn-light shadow-sm rounded-circle" onclick="showFile(${data})" title="Ficha Catastral">
+                                    <i class="fa-solid fa-folder-tree text-success"></i>
+                                </button>
+                            `;
                         }
                     }
                 ],
                 language: {
                     url: 'https://cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json'
                 },
-
                 pageLength: 3
             });
             $('.containerRecordsObs').css('display', 'block')
             $('.containerRecords').css('display', 'none')
         });
-
-        function showFile_eliminar(idCat) {
-            $(".containerSpinner").removeClass("d-none");
-            $(".containerSpinner").addClass("d-flex");
-            jQuery.ajax({
-                url: "{{ url('catastro/showFile') }}",
-                method: 'post',
-                data: {
-                    idCat: idCat
-                },
-                dataType: 'json',
-                headers: {
-                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                },
-                success: function(r) {
-                    $(".containerSpinner").removeClass("d-flex");
-                    $(".containerSpinner").addClass("d-none");
-                },
-                error: function(xhr, status, error) {
-                    alert("Algo salio mal, porfavor contactese con el Administrador.");
-                    $(".containerSpinner").removeClass("d-flex");
-                    $(".containerSpinner").addClass("d-none");
-                }
-            });
-        }
-
         function showFile(idCat) {
             const form = document.createElement("form");
             form.method = "POST";
             form.action = "{{ url('catastro/showFile') }}";
-            form.target = "_blank"; // 👉 abre en nueva pestaña
+            form.target = "_blank";
 
             const inputId = document.createElement("input");
             inputId.type = "hidden";
@@ -398,106 +359,155 @@
             form.submit();
             document.body.removeChild(form);
         }
-
+        // function deleteRecords(idCat) {
+        //     // alert('eliminando')
+        //     // return;
+        //     event.preventDefault();
+        //     Swal.fire({
+        //         title: "ESTA SEGURO DE ELIMINAR EL REGISTRO?",
+        //         text: "Confirme la accion ¿DESEA CONTINUAR?",
+        //         icon: "warning",
+        //         showCancelButton: true,
+        //         confirmButtonColor: "#3085d6",
+        //         cancelButtonColor: "#d33",
+        //         confirmButtonText: "Si, confirmar"
+        //     }).then((result) => {
+        //         if (result.isConfirmed) {
+        //             $(".containerSpinner").removeClass("d-none");
+        //             $(".containerSpinner").addClass("d-flex");
+        //             jQuery.ajax({
+        //                 url: "{{ url('catastro/deleteReg') }}",
+        //                 method: 'post',
+        //                 data: {
+        //                     idCat: idCat
+        //                 },
+        //                 dataType: 'json',
+        //                 headers: {
+        //                     'X-CSRF-TOKEN': "{{ csrf_token() }}"
+        //                 },
+        //                 success: function(r) {
+        //                     console.log(r)
+        //                     Swal.fire({
+        //                         title: r.message,
+        //                         icon: r.success ? "success" : "error",
+        //                         timer: 2000
+        //                     });
+        //                     if (r.success) {
+        //                         $('#tableCat').DataTable().ajax.reload(null, false);
+        //                     }
+        //                     $(".containerSpinner").removeClass("d-flex");
+        //                     $(".containerSpinner").addClass("d-none");
+        //                 },
+        //                 error: function(xhr, status, error) {
+        //                     alert("Algo salio mal, porfavor contactese con el Administrador.");
+        //                     $(".containerSpinner").removeClass("d-flex");
+        //                     $(".containerSpinner").addClass("d-none");
+        //                 }
+        //             });
+        //         } else
+        //             $(ele).prop('checked', false);
+        //     });
+        // }
         function deleteRecords(idCat) {
-            // alert('eliminando')
-            // return;
             event.preventDefault();
             Swal.fire({
-                title: "ESTA SEGURO DE ELIMINAR EL REGISTRO?",
-                text: "Confirme la accion ¿DESEA CONTINUAR?",
-                icon: "warning",
+                title: "Para eliminar el registro es necesario que ingrese la contraseña",
+                text: "Ingrese contraseña:",
+                input: "password",
+                inputPlaceholder: "Contraseña...",
+                inputAttributes: {
+                    maxlength: 20,
+                    autocapitalize: "off",
+                    autocorrect: "off",
+                    autocomplete: "new-password"
+                },
                 showCancelButton: true,
+                confirmButtonText: "Confirmar",
+                cancelButtonText: "Cancelar",
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "Si, confirmar"
+                preConfirm: (password) => {
+                    if (!password) {
+                        Swal.showValidationMessage("Debe ingresar la contraseña");
+                        return false;
+                    }
+                    return password;
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    $(".containerSpinner").removeClass("d-none");
-                    $(".containerSpinner").addClass("d-flex");
-                    jQuery.ajax({
+                    const password = result.value;
+                    $(".containerSpinner").removeClass("d-none").addClass("d-flex");
+                    $.ajax({
                         url: "{{ url('catastro/deleteReg') }}",
-                        method: 'post',
-                        data: {
-                            idCat: idCat
-                        },
+                        method: 'POST',
+                        data: {idCat: idCat,password: password},
                         dataType: 'json',
-                        headers: {
-                            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                        headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
+                        success: function (r) {
+                            Swal.fire({title: r.message,icon: r.success ? "success" : "error",timer: 2000});
+                            if (r.success) {$('#tableCat').DataTable().ajax.reload(null, false);}
                         },
-                        success: function(r) {
-                            console.log(r)
-                            Swal.fire({
-                                title: r.message,
-                                icon: r.success ? "success" : "error",
-                                timer: 2000
-                            });
-                            if (r.success) {
-                                $('#tableCat').DataTable().ajax.reload(null, false);
-                            }
-                            $(".containerSpinner").removeClass("d-flex");
-                            $(".containerSpinner").addClass("d-none");
+                        error: function () {
+                            Swal.fire({title: "Error",text: "Algo salió mal. Contacte con el administrador.",icon: "error"});
                         },
-                        error: function(xhr, status, error) {
-                            alert("Algo salio mal, porfavor contactese con el Administrador.");
-                            $(".containerSpinner").removeClass("d-flex");
-                            $(".containerSpinner").addClass("d-none");
+                        complete: function () {
+                            $(".containerSpinner").removeClass("d-flex").addClass("d-none");
                         }
                     });
-                } else
-                    $(ele).prop('checked', false);
-            });
-        }
-
-        function fillRecords() {
-            $(".containerSpinner").removeClass("d-none").addClass("d-flex");
-            jQuery.ajax({
-                url: "{{ url('catastro/list') }}",
-                method: 'get',
-                success: function(r) {
-                    if (r.state) {
-                        $('#recordsAssign').html('');
-                        let html = '';
-                        let month = '';
-                        for (var i = 0; i < r.data.length; i++) {
-                            html += '<tr>' +
-                                '<td class="align-middle text-center">' + i + '</td>' +
-                                '<td class="align-middle text-center">' + novDato(r.data[i].u4) + '</td>' +
-                                '<td class="align-middle text-center">' + novDato(r.data[i].nombreEnc) +
-                                '</td>' +
-                                '<td class="align-middle text-center">' + novDato(r.data[i].ficha) + '</td>' +
-                                '<td class="align-middle text-center">' + novDato(r.data[i].d2) + '</td>' +
-                                '<td class="align-middle text-center">' + novDato(r.data[i].d7) + '</td>' +
-                                '<td class="align-middle text-center">' + novDato(r.data[i].t1) + '</td>' +
-                                '<td class="align-middle text-center">' + novDato(r.data[i].ci1) + '</td>' +
-                                '<td class="align-middle text-center">' + imgFro(r.data[i].frontis) + '</td>' +
-                                '<td class="align-middle text-center">' + imgAgu(r.data[i].agua) + '</td>' +
-                                '<td class="align-middle text-center">' + imgAlc(r.data[i].alc) + '</td>' +
-                                '<td class="align-middle text-center">' + imgUbi(r.data[i].ubicacion) +
-                                '</td>' +
-                                '<td class="align-middle text-center">' +
-                                '<button class="btn btn-primary" onclick="edit(' + r.data[i].idCat +
-                                ')"><i class="fa fa-edit"></i></button>' +
-                                '<button class="btn btn-danger btn-delete" onclick="deleteRecords(' + r.data[i]
-                                .idCat + ')"><i class="fa fa-trash"></i></button>' +
-                                '</td>' +
-                                '</tr>';
-                        }
-                        initDatatable('tableCat')
-                        $('#recordsAssign').html(html);
-                        tippy('.btn-delete', {
-                            content: 'Eliminar asignacion',
-                            placement: 'top'
-                        });
-                    } else
-                        alert(r.message);
-                    $(".containerSpinner").removeClass("d-flex").addClass("d-none");
-                },
-                error: function(xhr, status, error) {
-                    console.log("Algo salio mal, porfavor contactese con el Administrador.");
                 }
             });
         }
+
+
+        // function fillRecords() {
+        //     $(".containerSpinner").removeClass("d-none").addClass("d-flex");
+        //     jQuery.ajax({
+        //         url: "{{ url('catastro/list') }}",
+        //         method: 'get',
+        //         success: function(r) {
+        //             if (r.state) {
+        //                 $('#recordsAssign').html('');
+        //                 let html = '';
+        //                 let month = '';
+        //                 for (var i = 0; i < r.data.length; i++) {
+        //                     html += '<tr>' +
+        //                         '<td class="align-middle text-center">' + i + '</td>' +
+        //                         '<td class="align-middle text-center">' + novDato(r.data[i].u4) + '</td>' +
+        //                         '<td class="align-middle text-center">' + novDato(r.data[i].nombreEnc) +
+        //                         '</td>' +
+        //                         '<td class="align-middle text-center">' + novDato(r.data[i].ficha) + '</td>' +
+        //                         '<td class="align-middle text-center">' + novDato(r.data[i].d2) + '</td>' +
+        //                         '<td class="align-middle text-center">' + novDato(r.data[i].d7) + '</td>' +
+        //                         '<td class="align-middle text-center">' + novDato(r.data[i].t1) + '</td>' +
+        //                         '<td class="align-middle text-center">' + novDato(r.data[i].ci1) + '</td>' +
+        //                         '<td class="align-middle text-center">' + imgFro(r.data[i].frontis) + '</td>' +
+        //                         '<td class="align-middle text-center">' + imgAgu(r.data[i].agua) + '</td>' +
+        //                         '<td class="align-middle text-center">' + imgAlc(r.data[i].alc) + '</td>' +
+        //                         '<td class="align-middle text-center">' + imgUbi(r.data[i].ubicacion) +
+        //                         '</td>' +
+        //                         '<td class="align-middle text-center">' +
+        //                         '<button class="btn btn-primary" onclick="edit(' + r.data[i].idCat +
+        //                         ')"><i class="fa fa-edit"></i></button>' +
+        //                         '<button class="btn btn-danger btn-delete" onclick="deleteRecords(' + r.data[i]
+        //                         .idCat + ')"><i class="fa fa-trash"></i></button>' +
+        //                         '</td>' +
+        //                         '</tr>';
+        //                 }
+        //                 initDatatable('tableCat')
+        //                 $('#recordsAssign').html(html);
+        //                 tippy('.btn-delete', {
+        //                     content: 'Eliminar asignacion',
+        //                     placement: 'top'
+        //                 });
+        //             } else
+        //                 alert(r.message);
+        //             $(".containerSpinner").removeClass("d-flex").addClass("d-none");
+        //         },
+        //         error: function(xhr, status, error) {
+        //             console.log("Algo salio mal, porfavor contactese con el Administrador.");
+        //         }
+        //     });
+        // }
 
         function edit(id) {
             $('#mEditar').modal('show')
@@ -536,7 +546,6 @@
     <script>
         let currentImages = [];
         let currentIndex = 0;
-
         function openImageModal(images, index = 0) {
             currentImages = images; // array de rutas
             currentIndex = index; // índice actual
@@ -557,7 +566,7 @@
             }
         });
     </script>
-    <script>
+    {{-- <script>
         function imgFro(data) {
             if (data && data !== '') {
                 let url = `/storage/${data}`;
@@ -566,7 +575,6 @@
             }
             return '<span class="text-muted">Sin imagen</span>';
         }
-
         function imgAgu(data) {
             if (data && data !== '') {
                 let url = `/storage/${data}`;
@@ -575,7 +583,6 @@
             }
             return '<span class="text-muted">Sin imagen</span>';
         }
-
         function imgAlc(data) {
             if (data && data !== '') {
                 let url = `/storage/${data}`;
@@ -584,7 +591,6 @@
             }
             return '<span class="text-muted">Sin imagen</span>';
         }
-
         function imgUbi(data) {
             if (data && data !== '') {
                 let url = `/storage/${data}`;
@@ -593,7 +599,7 @@
             }
             return '<span class="text-muted">Sin imagen</span>';
         }
-    </script>
+    </script> --}}
     <script src="{{ asset('plugins/datatables/dataTables.js') }}"></script>
     <script src="{{ asset('plugins/datatables/dataTables.responsive.js') }}"></script>
     <script src="{{ asset('plugins/datatables/responsive.dataTables.js') }}"></script>

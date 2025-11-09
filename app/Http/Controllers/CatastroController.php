@@ -291,7 +291,9 @@ class CatastroController extends Controller
     }
     public function actDeleteReg(Request $r)
     {
-        dd('eliminar registro');
+        // dd($r->all());
+        if ($r->password !== '369')
+            return response()->json(['success' => false,'message' => 'Contraseña incorrecta. No se puede eliminar el registro.']);
         DB::beginTransaction();
         try {
             $idCat = $r->idCat;
@@ -299,22 +301,11 @@ class CatastroController extends Controller
             $catastro = DB::table('catastro')->where('idCat', $idCat)->first();
             if (!$catastro)
                 return response()->json(['success' => false,'message' => 'Registro no encontrado.'], 404);
-            // Campos de imágenes a eliminar
-            // $imagenes = ['frontis', 'agua', 'alc', 'ubicacion'];
-            // foreach ($imagenes as $campo)
-            // {
-            //     if (!empty($catastro->$campo) && Storage::disk('public')->exists($catastro->$campo))
-            //     {
-            //         Storage::disk('public')->delete($catastro->$campo);
-            //     }
-            // }
             // Ruta de la carpeta del registro
             $carpeta = 'catastro_img/cat_' . $idCat;
-
             // Eliminar la carpeta con todas las imágenes
-            if (Storage::disk('public')->exists($carpeta)) {
+            if (Storage::disk('public')->exists($carpeta))
                 Storage::disk('public')->deleteDirectory($carpeta);
-            }
             // Eliminar el registro
             DB::table('catastro')->where('idCat', $idCat)->delete();
             DB::commit();
