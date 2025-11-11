@@ -3,7 +3,7 @@
     <div class="container-fluid mt-1">
         <div class="card shadow bg-light">
             <div class="card-header">
-                <h6 class="m-0"><i class="fa fa-list"></i> Lista</h6>
+                <h6 class="m-0"><i class="fa fa-list"></i> Fichas</h6>
             </div>
             <div class="d-none justify-content-center containerSpinner"
                 style="background: rgb(199 206 213 / 50%);height: 100%; position: absolute;width: 100%;z-index: 1000000;">
@@ -165,7 +165,7 @@
                         </button>
                         <!-- Botón Ficha Catastral -->
                         <button class="btn btn-light shadow-sm rounded-circle" onclick="showFile(${data})" title="Ficha Catastral">
-                            <i class="fa-solid fa-folder-tree text-success"></i>
+                            <i class="fa-solid fa-file-contract text-success"></i>
                         </button>
                     `;
                         }

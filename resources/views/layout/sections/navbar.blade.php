@@ -1,13 +1,13 @@
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
     <div class="container-fluid">
-      <a class="navbar-brand" href="#">EMUSAP</a>
+      <a class="navbar-brand" href="{{asset('/')}}">EMUSAP: MODULO DE FICHA CATASTRAL</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              {{-- <li class="nav-item nb1"><a class="nav-link" href="{{url('home')}}">Padron</a></li> --}}
-              {{-- <li class="nav-item nb2"><a class="nav-link" aria-current="page" href="{{url('showAssignTecnical')}}">Asignaciones</a></li> --}}
+              <li class="nav-item nb1"><a class="nav-link" href="{{url('report/show')}}">Dashboard</a></li>
+              <li class="nav-item nb2"><a class="nav-link" aria-current="page" href="{{url('showAssignTecnical')}}">Fichas</a></li>
               {{-- <li class="nav-item nb2"><a class="nav-link" href="{{url('showReport')}}">Asignaciones</a></li> --}}
               {{-- <li class="nav-item nb3"><a class="nav-link" href="{{url('showReport')}}">Reportes</a></li> --}}
             </ul>

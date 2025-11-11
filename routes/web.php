@@ -6,6 +6,7 @@ use App\Http\Controllers\CatastroController;
 use App\Http\Controllers\Cf2Controller;
 use App\Http\Controllers\FcController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ReportController;
 
 // Route::get('/', function () {return view('form.form');});
 Route::get('/',[CatastroController::class, 'actForm']);
@@ -26,5 +27,7 @@ Route::get('login/home',[LoginController::class, 'actHome']);
 Route::get('catastro/list',[CatastroController::class, 'actList']);
 Route::post('catastro/deleteReg',[CatastroController::class, 'actDeleteReg']);
 Route::post('catastro/showFile',[FcController::class, 'actShowFile']);
+
+Route::get('report/show',[ReportController::class, 'actShow']);
 
 
