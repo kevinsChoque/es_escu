@@ -7,7 +7,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item nb1"><a class="nav-link" href="{{url('report/show')}}">Dashboard</a></li>
-              <li class="nav-item nb2"><a class="nav-link" aria-current="page" href="{{url('showAssignTecnical')}}">Fichas</a></li>
+              <li class="nav-item nb2"><a class="nav-link" href="{{url('login/home')}}">Fichas</a></li>
               {{-- <li class="nav-item nb2"><a class="nav-link" href="{{url('showReport')}}">Asignaciones</a></li> --}}
               {{-- <li class="nav-item nb3"><a class="nav-link" href="{{url('showReport')}}">Reportes</a></li> --}}
             </ul>

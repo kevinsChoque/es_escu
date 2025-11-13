@@ -1,4 +1,17 @@
 
+function navBarActive()
+{
+    // console.log('este es sba---> '+localStorage.getItem("sba"));
+    // if(localStorage.getItem("sba")==5)
+    // {
+    //     console.log('entro');
+    //     $('.sba5').addClass('active');
+    // }
+    if(localStorage.getItem("nba")==1)$('.nb1').addClass('bg-info');
+    if(localStorage.getItem("nba")==2)$('.nb2').addClass('bg-info');
+    if(localStorage.getItem("nba")==3)$('.nb3').addClass('bg-info');
+    if(localStorage.getItem("nba")==4)$('.nb4').addClass('bg-info');
+}
 function novDato(dato){return dato!==null && dato!=''?dato:'--';}
 function aonDato(dato){return dato!==null && dato!=''?dato:'';}
 function initFv(id,rules)

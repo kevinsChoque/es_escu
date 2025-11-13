@@ -48,7 +48,7 @@
 <!-- transJQV -->
 <script src="{{asset('plugins/validate/translateValidate.js')}}"></script>
 <script>
-    // navBarActive()
+    navBarActive()
 </script>
   </body>
 </html>
