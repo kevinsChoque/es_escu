@@ -29,5 +29,10 @@ Route::post('catastro/deleteReg',[CatastroController::class, 'actDeleteReg']);
 Route::post('catastro/showFile',[FcController::class, 'actShowFile']);
 
 Route::get('report/show',[ReportController::class, 'actShow']);
+Route::get('report/resumen', [ReportController::class, 'resumen']);
+Route::get('report/d1', [ReportController::class, 'd1']);
+Route::get('report/bar1', [ReportController::class, 'bar1']);
+Route::get('report/barapi1', [ReportController::class, 'barapi1']);
+
 
 
